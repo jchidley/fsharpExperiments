@@ -64,9 +64,17 @@
     <Content Include="App.config" />
     <None Include="Tutorial.fsx" />
     <Compile Include="FsCheck.fs" />
+    <Compile Include="FParsecFloat.fs" />
+    <Compile Include="FParsecString.fs" />
     <Compile Include="NodaTime.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FParsec">
+      <HintPath>..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll</HintPath>
+    </Reference>
+    <Reference Include="FParsecCS">
+      <HintPath>..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll</HintPath>
+    </Reference>
     <Reference Include="FsCheck">
       <HintPath>..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll</HintPath>
     </Reference>
