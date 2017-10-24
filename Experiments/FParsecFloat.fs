@@ -1,11 +1,9 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
-    #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
     #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
     #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
     #r @"..\packages\xunit.extensibility.core.2.3.0\lib\netstandard1.1\xunit.core.dll"
     #r @"..\packages\xunit.extensibility.execution.2.3.0\lib\net452\xunit.execution.desktop.dll"
-    #r @"..\packages\FsCheck.Xunit.2.10.3\lib\net452\FsCheck.Xunit.dll"
     #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
     #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
 #endif
@@ -15,8 +13,6 @@ namespace fSharpExperiments
 module FParsecFloatTest =
     open FParsec
     open Xunit
-    open FsCheck
-    open FsCheck.Xunit
 
     let test p str =
         match run p str with
@@ -29,12 +25,12 @@ module FParsecFloatTest =
             | Success (result, _, _) -> result
             | Failure (error, _, _) -> raise (ParseError error) 
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``"1.25" is parsed as 1.25f`` () =
         let r = parse pfloat "1.25"
         Assert.Equal(1.25, r)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``pfloat "1.25E 3" fails`` () = 
         // https://www.richard-banks.org/2015/07/stop-using-assertthrows-in-your-bdd.html
         // pfloat should return a float which needs to be ignored
@@ -53,17 +49,17 @@ module FParsecFloatTest =
 // the above line not needed if you do this:    
     test floatBetweenBrackets "[1.0]" |> ignore
     
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``Parsing [1.0] works`` () =
         let r = parse floatBetweenBrackets "[1.0]"
         Assert.Equal(1.0,r)
     
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatBetweenBrackets "[]" fails`` () = 
         let ex = Record.Exception(fun () -> parse floatBetweenBrackets "[]"  |> ignore)
         Assert.IsType<ParseError>(ex)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatBetweenBrackets "[1.0" fails`` () = 
         let ex = Record.Exception(fun () -> parse floatBetweenBrackets "[1.0"  |> ignore)
         Assert.IsType<ParseError>(ex)
@@ -75,12 +71,12 @@ module FParsecFloatTest =
     let floatBetweenDoubleBrackets = pfloat |> betweenStrings "[[" "]]"
     test floatBetweenDoubleBrackets "[[2.0]]" |> ignore
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatBetweenBrackets2 "[2.0]"`` () = 
         let r = parse floatBetweenBrackets "[2.0]"
         Assert.Equal(2.0,r)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatBetweenDoubleBrackets "[[3.0]]"`` () = 
         let r = parse floatBetweenDoubleBrackets "[[3.0]]"
         Assert.Equal(3.0,r)
@@ -91,34 +87,34 @@ module FParsecFloatTest =
     let betweenCurlies = pfloat |> betweenStrings3 "{" "}"
     test betweenCurlies "{4.0}" |> ignore
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse betweenCurlies "{4.0}"`` () = 
         let r = parse betweenCurlies "{4.0}"
         Assert.Equal(4.0,r)
     
     let r = parse (many floatBetweenBrackets) "[2][3][4]"
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse (many floatBetweenBrackets) ""`` () = 
         let r = parse (many floatBetweenBrackets) ""
         Assert.True(([]:float list) = r)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse (many floatBetweenBrackets) "[1.0]"`` () = 
         let r = parse (many floatBetweenBrackets) "[1.0]"
         Assert.True([1.0] = r)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse (many floatBetweenBrackets) ""[2][3][4]""`` () = 
         let r = parse (many floatBetweenBrackets) "[2][3][4]"
         Assert.True([2.0;3.0;4.0] = r)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse (many floatBetweenBrackets) "[1][2.0E]" FAIL`` () = 
         let ex = Record.Exception(fun () -> parse (many floatBetweenBrackets) "[1][2.0E]"  |> ignore)
         Assert.IsType<ParseError>(ex)
     
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse (many1 floatBetweenBrackets) "(1)" FAIL`` () = 
         let ex = Record.Exception(fun () -> parse (many1 floatBetweenBrackets) "(1)" |> ignore)
         Assert.IsType<ParseError>(ex)
@@ -128,22 +124,22 @@ module FParsecFloatTest =
     let floatList = str "[" >>. sepBy pfloat (str ",") .>> str "]"
     parse floatList "[4,5,6]" |> ignore
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatList "[1,2,3]"`` () = 
         let r = parse floatList "[1,2,3]"
         Assert.True([1.0; 2.0; 3.0] = r)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatList "[1.0,]" FAIL`` () = 
         let ex = Record.Exception(fun () -> parse floatList "[1.0,]" |> ignore)
         Assert.IsType<ParseError>(ex)
     
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatList "[1.0,2.0" FAIL`` () = 
         let ex = Record.Exception(fun () -> parse floatList "[1.0,2.0" |> ignore)
         Assert.IsType<ParseError>(ex)
 
-    [<Fact>]
+    [<Fact;Trait("Parse","Float")>]
     let ``parse floatBetweenBrackets "[1.0, 2.0]" FAIL`` () = 
         let ex = Record.Exception(fun () -> parse floatBetweenBrackets "[1.0, 2.0]" |> ignore)
         Assert.IsType<ParseError>(ex)
