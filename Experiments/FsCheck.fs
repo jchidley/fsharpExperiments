@@ -1,6 +1,8 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
     #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
+    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
+    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
 #endif
 
 namespace fSharpExperiments
@@ -15,6 +17,19 @@ module FsCheckTest =
     open FsCheck.Xunit
     open System
     open NodaTime
+
+    open FParsec
+
+    let test p str =
+        match run p str with
+        | Success(result, _, _)   -> printfn "Success: %A" result
+        | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
+    
+    exception ParseError of string
+    let parse parser input = 
+        match run parser input with 
+            | Success (result, _, _) -> result
+            | Failure (error, _, _) -> raise (ParseError error) 
 
     type VersionGenerator =
         static member Version() =
@@ -66,6 +81,27 @@ module FsCheckTest =
     [<Fact>]
     let ``1/0 raises DivideByZeroException`` () =
         Assert.Throws<DivideByZeroException>(fun () -> 1/0 |> ignore)
+
+    type stringFloat = StringFloat of string
+
+    type stringFloatGen =
+        static member StringFloat () =
+            Arb.generate<float>
+            |> Gen.map (fun x -> if (x = infinity || x = -infinity) then 0.0 else x)
+            |> Gen.map (fun x -> StringFloat (x.ToString("R")))
+            |> Arb.fromGen
+
+    // If using NUnit...
+    // [<SetUp>]
+    let setup () =
+        do Arb.register<stringFloatGen>() |> ignore
+     
+    [<Property>]
+    let ``stringFloat gen``(x:stringFloat) = 
+        let (StringFloat str) = x
+        let f = System.Double.Parse(str)
+        let fp = parse pfloat str
+        Assert.Equal(f, fp)
     
 
 (*
