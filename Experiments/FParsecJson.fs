@@ -69,16 +69,26 @@ module JSONParser =
     
     let pJNumber:Parser<_> = pfloat |>> JNumber
 
+    // https://github.com/fscheck/FsCheck/issues/103
     type Letters =
         static member Char() = Gen.elements ['A' .. 'Z'] |> Arb.fromGen
+    
+    // not working
+    type Jno = string
+    
+    // not working
+    type Generates = 
+        static member JNo() = Arb.generate<float> 
+                                |> Gen.map (fun x -> x.ToString("R") ) 
+                                |> Arb.fromGen
 
+    Arb.register<Generates>() |> ignore
 
     [<Property( Arbitrary=[| typeof<Letters> |])>]
     let ``Diamond is non-empty`` (letter : char) =
         let actual = letter
         let chars = ['A'..'Z']
         Assert.True(chars |> List.contains letter)
- 
 
     [<Property;Trait("Parse","Json")>]
     let ``parse JSON numbers`` (x:float) =
