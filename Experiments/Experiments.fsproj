@@ -66,6 +66,7 @@
     <Compile Include="FsCheck.fs" />
     <Compile Include="FParsecFloat.fs" />
     <Compile Include="FParsecString.fs" />
+    <Compile Include="FParsecJson.fs" />
     <Compile Include="NodaTime.fs" />
   </ItemGroup>
   <ItemGroup>
