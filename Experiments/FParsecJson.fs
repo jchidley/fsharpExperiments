@@ -72,17 +72,6 @@ module JSONParser =
     // https://github.com/fscheck/FsCheck/issues/103
     type Letters =
         static member Char() = Gen.elements ['A' .. 'Z'] |> Arb.fromGen
-    
-    // not working
-    type Jno = string
-    
-    // not working
-    type Generates = 
-        static member JNo() = Arb.generate<float> 
-                                |> Gen.map (fun x -> x.ToString("R") ) 
-                                |> Arb.fromGen
-
-    Arb.register<Generates>() |> ignore
 
     [<Property( Arbitrary=[| typeof<Letters> |])>]
     let ``Diamond is non-empty`` (letter : char) =
@@ -102,55 +91,4 @@ module JSONParser =
         let expected = JBool true, JBool false
         let actual = parse pJBool "true", parse pJBool "false"
         Assert.Equal(expected, actual)
-
-
-    //let jnumberGen() = Arb.generate<float> |> Gen.map (fun x -> x.ToString() )
-
-    //type Tree = Leaf of int | Branch of Tree * Tree
-
-    //let rec unsafeTree() = 
-    //  Gen.oneof [ Gen.map Leaf Arb.generate<int> 
-    //              Gen.map2 (fun x y -> Branch (x,y)) (unsafeTree()) (unsafeTree())]
-
-    //let tree =
-    //    let rec tree' s = 
-    //        match s with
-    //        | 0 -> Gen.map Leaf Arb.generate<int>
-    //        | n when n>0 -> 
-    //            let subtree = tree' (n/2)
-    //            Gen.oneof [ Gen.map Leaf Arb.generate<int> 
-    //                        Gen.map2 (fun x y -> Branch (x,y)) subtree subtree]
-    //        | _ -> invalidArg "s" "Only positive arguments are allowed"
-    //    Gen.sized tree'
-
-    //type MyGenerators =
-    //  static member Tree() =
-    //      {new Arbitrary<Tree>() with
-    //          override x.Generator = tree
-    //          override x.Shrinker t = Seq.empty }
-    
-    //Arb.register<MyGenerators>() |> ignore
-
-    //let revRevTree (xs:list<Tree>) = 
-    //  List.rev(List.rev xs) = xs
-    //Check.Quick revRevTree
-
-    //type Box<'a> = Whitebox of 'a | Blackbox of 'a
-
-    //let boxGen<'a> : Gen<Box<'a>> = 
-    //    gen { let! a = Arb.generate<'a>
-    //          return! Gen.elements [ Whitebox a; Blackbox a] }
-
-    //type MyTreeGenerator =
-    //    static member Tree() =
-    //        {new Arbitrary<Tree>() with
-    //            override x.Generator = tree
-    //            override x.Shrinker t = Seq.empty }
-    //    static member Box() = Arb.fromGen boxGen
-
-    //let revRevBox (xs:list<Box<int>>) = 
-    //  List.rev(List.rev xs) = xs
-    //Check.Quick revRevBox
-
-
 

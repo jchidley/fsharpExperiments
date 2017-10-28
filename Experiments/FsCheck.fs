@@ -1,6 +1,11 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
     #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
+    #r @"..\packages\FsCheck.Xunit.2.10.3\lib\net452\FsCheck.Xunit.dll"
+    #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
+    #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
+    #r @"..\packages\xunit.extensibility.core.2.3.0\lib\netstandard1.1\xunit.core.dll"
+    #r @"..\packages\xunit.extensibility.execution.2.3.0\lib\net452\xunit.execution.desktop.dll"
     #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
     #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
 #endif
@@ -17,13 +22,7 @@ module FsCheckTest =
     open FsCheck.Xunit
     open System
     open NodaTime
-
     open FParsec
-
-    let test p str =
-        match run p str with
-        | Success(result, _, _)   -> printfn "Success: %A" result
-        | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
     
     exception ParseError of string
     let parse parser input = 
@@ -82,27 +81,79 @@ module FsCheckTest =
     let ``1/0 raises DivideByZeroException`` () =
         Assert.Throws<DivideByZeroException>(fun () -> 1/0 |> ignore)
 
-    type stringFloat = StringFloat of string
+    type Tree = Leaf of int | Branch of Tree * Tree
 
-    type stringFloatGen =
+    let rec unsafeTree() = 
+      Gen.oneof [ Gen.map Leaf Arb.generate<int> 
+                  Gen.map2 (fun x y -> Branch (x,y)) (unsafeTree()) (unsafeTree())]
+
+    let tree =
+        let rec tree' s = 
+            match s with
+            | 0 -> Gen.map Leaf Arb.generate<int>
+            | n when n>0 -> 
+                let subtree = tree' (n/2)
+                Gen.oneof [ Gen.map Leaf Arb.generate<int> 
+                            Gen.map2 (fun x y -> Branch (x,y)) subtree subtree]
+            | _ -> invalidArg "s" "Only positive arguments are allowed"
+        Gen.sized tree'
+
+    type MyGenerators =
+      static member Tree() =
+          {new Arbitrary<Tree>() with
+              override x.Generator = tree
+              override x.Shrinker t = Seq.empty }
+    
+    Arb.register<MyGenerators>() |> ignore
+
+    [<Property;Trait("FsCheck","Generator")>]
+    let revRevTree (xs:list<Tree>) = 
+      List.rev(List.rev xs) = xs
+    // Check.Quick revRevTree
+
+    type Box<'a> = Whitebox of 'a | Blackbox of 'a
+
+    let boxGen<'a> : Gen<Box<'a>> = 
+        gen { let! a = Arb.generate<'a>
+              return! Gen.elements [ Whitebox a; Blackbox a] }
+
+    type MyTreeGenerator =
+        static member Tree() =
+            {new Arbitrary<Tree>() with
+                override x.Generator = tree
+                override x.Shrinker t = Seq.empty }
+        static member Box() = Arb.fromGen boxGen
+
+    [<Property;Trait("FsCheck","Generator")>]
+    let revRevBox (xs:list<Box<int>>) = 
+      List.rev(List.rev xs) = xs
+    // Check.Quick revRevBox
+
+    type StringFloat = StringFloat of string
+
+    type StringFloatGenerator =
         static member StringFloat () =
             Arb.generate<float>
-            |> Gen.map (fun x -> if (x = infinity || x = -infinity) then 0.0 else x)
-            |> Gen.map (fun x -> StringFloat (x.ToString("R")))
+            // FParsec can't handle infinities
+            |> Gen.filter (fun x -> (x <> infinity && x <> -infinity) )
+            |> Gen.map (fun x -> StringFloat (x.ToString("G17")))
+            // Sometimes imposssible to produce a rountrippable float?
+            |> Gen.filter (fun x -> (x <> StringFloat "NaN") )
             |> Arb.fromGen
 
-    // If using NUnit...
-    // [<SetUp>]
-    let setup () =
-        do Arb.register<stringFloatGen>() |> ignore
-     
-    [<Property>]
-    let ``stringFloat gen``(x:stringFloat) = 
+//    Arb.register<StringFloatGenerator>() |> ignore
+
+    let severalStringFloats = Gen.sample 100 10 Arb.generate<StringFloat>
+
+    [<Property( Arbitrary=[| typeof<StringFloatGenerator> |])>]
+    [<Trait("FsCheck","Generator")>]
+    let ``stringFloat gen``(x:StringFloat) = 
         let (StringFloat str) = x
-        let f = System.Double.Parse(str)
-        let fp = parse pfloat str
-        Assert.Equal(f, fp)
-    
+        let expected = System.Double.Parse(str)
+        let actual = parse pfloat str
+        expected = actual
+
+    Check.Quick ``stringFloat gen``
 
 (*
     [<EntryPoint>]

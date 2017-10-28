@@ -161,11 +161,7 @@ module FParsecTogetherTest =
         Assert.Equal(expected, actual)
     
     let boolean = (stringReturn "true"  true) <|> (stringReturn "false" false)
-
-    //let booleanTestData = [ [| "false"; false|];
-    //                        [|"true";true|]
-    //                        ]
-
+    
     [<Fact;Trait("Parse","Together")>]
     let ``boolean "true"``() =
         let actual = parse boolean "true"
