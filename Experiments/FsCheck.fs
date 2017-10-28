@@ -134,8 +134,9 @@ module FsCheckTest =
     type StringFloatGenerator =
         static member StringFloat () =
             Arb.generate<float>
-            // FParsec can't handle infinities
-            |> Gen.filter (fun x -> (x <> infinity && x <> -infinity) )
+            // FParsec can't handle infinities, nan
+            // I'd use NormalFloat but I need to round-trip
+            |> Gen.filter (fun x -> (x <> infinity && x <> -infinity && x <> nan) )
             |> Gen.map (fun x -> StringFloat (x.ToString("G17")))
             // Sometimes imposssible to produce a rountrippable float?
             |> Gen.filter (fun x -> (x <> StringFloat "NaN") )
