@@ -13,7 +13,6 @@
 namespace fSharpExperiments
 
 module FsCheckTest =
-    // open NUnit.Framework
     // http://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work-3/#test-fscheck
     // http://fsharpforfunandprofit.com/posts/property-based-testing/
     // http://fsharpforfunandprofit.com/posts/property-based-testing-2/
@@ -185,6 +184,115 @@ module FsCheckTest =
         let expected = System.Double.Parse(str)
         let actual = parse pfloat str
         expected = actual
+
+    [<Property>]
+    let ``FParsec parses floats - ProplForAll``() = 
+        let stringGen = 
+            // I'd use NormalFloat but I need to round-trip with parsing so easier to use float
+            Arb.generate<float>
+            // FParsec can't handle infinities, nan
+            |> Gen.filter (fun x -> (x <> infinity && x <> -infinity && x <> nan) )
+            |> Gen.map (fun x -> (x.ToString("G17")))
+            // Sometimes imposssible to produce a rountrippable float?
+            |> Gen.filter (fun x -> (x <> "NaN") )
+            |> Arb.fromGen
+        let fParsecFloatTest str = 
+            let expected = System.Double.Parse(str)
+            let actual = parse pfloat str
+            expected = actual
+        Prop.forAll stringGen fParsecFloatTest
+
+
+module FsCheckProp = 
+    open Xunit
+    open FsCheck
+    open FsCheck.Xunit
+    open System
+
+    let rec ordered xs = 
+        match xs with
+            | [] -> true
+            | [x] -> true
+            | x::y::ys ->  (x <= y) && ordered (y::ys)
+    let rec insert x xs = 
+        match xs with
+            | [] -> [x]
+            | c::cs -> if x <= c then x::xs else c::(insert x cs)
+
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let insertKeepsOrder (x:int) xs = 
+        ordered xs ==> ordered (insert x xs)
+    Check.Quick insertKeepsOrder
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let insertWithArb (x:int) = 
+        let orderedList = Arb.from<list<int>> |> Arb.mapFilter List.sort ordered
+        let orderInsertTest xs x = ordered(insert x xs)
+        Prop.forAll orderedList orderInsertTest
+    // let insertWithArb x = Prop.forAll orderedList orderInsertTest // (fun xs -> ordered(insert x xs))
+    Check.Quick insertWithArb
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let tooEager a =
+        a <> 0 ==> (1/a = 1/a)
+    Check.Quick tooEager
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let moreLazy  a = 
+        a <> 0 ==> (lazy (1/a = 1/a))
+    Check.Quick moreLazy
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let insertCollect (x:int) xs = 
+      ordered xs ==> (ordered (insert x xs))
+          |> Prop.collect (List.length xs)
+    Check.Quick insertCollect
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let timesOut (a:int) = 
+        lazy
+            if a>10 then
+                do System.Threading.Thread.Sleep(3000)
+                true
+            else 
+                true
+        |> Prop.within 1000
+    Check.Quick timesOut
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let revRevIsOrig (xs:list<int>) = 
+        let actual = List.rev(List.rev xs)
+        let expected = xs
+        actual = expected
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let expectDivideByZero() = 
+        Prop.throws<DivideByZeroException,_> (lazy (raise <| DivideByZeroException()))
+    Check.Quick expectDivideByZero
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let testingRevRev () = 
+        Prop.forAll Arb.from<int list> revRevIsOrig
+
+    [<Property>]
+    [<Trait("FsCheck","FsCheckProp")>]
+    let divideByZeroException () = 
+        let divideByZero (x:int) = 
+            x/0
+        Prop.throws<System.Exception,_> (lazy (divideByZero))
+
+
+
 (*
     [<EntryPoint>]
     let main argv = 

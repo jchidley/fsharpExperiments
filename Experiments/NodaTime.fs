@@ -4,7 +4,6 @@
     #r @"..\packages\NodaTime.2.2.1\lib\net45\NodaTime.dll"
     #r @"..\packages\NodaTime.Serialization.JsonNet.2.0.0\lib\net45\NodaTime.Serialization.JsonNet.dll"
     #r @"..\packages\NodaTime.Testing.2.2.1\lib\net45\NodaTime.Testing.dll"
-    #r @"..\packages\NUnit.3.8.1\lib\net45\nunit.framework.dll"
     #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
     #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
     #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
