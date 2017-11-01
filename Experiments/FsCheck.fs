@@ -2,10 +2,10 @@
     #I __SOURCE_DIRECTORY__
     #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
     #r @"..\packages\FsCheck.Xunit.2.10.3\lib\net452\FsCheck.Xunit.dll"
-    #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
-    #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
-    #r @"..\packages\xunit.extensibility.core.2.3.0\lib\netstandard1.1\xunit.core.dll"
-    #r @"..\packages\xunit.extensibility.execution.2.3.0\lib\net452\xunit.execution.desktop.dll"
+    #r @"..\packages\xunit.runner.visualstudio.2.3.1\build\net20\..\_common\xunit.abstractions.dll"
+    #r @"..\packages\xunit.assert.2.3.1\lib\netstandard1.1\xunit.assert.dll"
+    #r @"..\packages\xunit.extensibility.core.2.3.1\lib\netstandard1.1\xunit.core.dll"
+    #r @"..\packages\xunit.extensibility.execution.2.3.1\lib\net452\xunit.execution.desktop.dll"
     #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
     #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
 #endif
@@ -161,32 +161,37 @@ module FsCheckTest =
             let expected = xs
             actual = expected
 
-    let ``FParsec correctly parses floats`` (x:float) = 
+    [<Property>]
+    let ``FParsec correctly parses floats``(x:float) =  
         let str = x.ToString()
         let expected = System.Double.Parse(str)
         let actual = parse pfloat str
         expected = actual
-
-    Check.Quick ``FParsec correctly parses floats``
-
-    [<Fact>]
-    let ``FParsec correctly parses floats - Fact``() =  
-        let floatParser (x:float) = 
+    
+    [<Property>]
+    let ``FParsec parses floats - Prop.forAll``() = 
+        let ``FParsec correctly parses floats``(x:float) =  
             let str = x.ToString()
             let expected = System.Double.Parse(str)
             let actual = parse pfloat str
             expected = actual
-        Check.QuickThrowOnFailure floatParser 
+        Prop.forAll Arb.from<float> ``FParsec correctly parses floats``
+    
+    [<Property>]
+    let ``FParsec parses floats - custom float prototype``() = 
+        let floatLikeDataGenerator = 
+            Arb.generate<float>
+            |> Gen.filter (fun x -> (x <> infinity && x <> -infinity && x <> nan) )
+            |> Arb.fromGen
+        let ``FParsec correctly parses floats``(x:float) =  
+            let str = x.ToString()
+            let expected = System.Double.Parse(str)
+            let actual = parse pfloat str
+            expected = actual
+        Prop.forAll floatLikeDataGenerator ``FParsec correctly parses floats``
 
     [<Property>]
-    let ``FParsec correctly parses floats - Property``(x:float) =  
-        let str = x.ToString()
-        let expected = System.Double.Parse(str)
-        let actual = parse pfloat str
-        expected = actual
-
-    [<Property>]
-    let ``FParsec parses floats - ProplForAll``() = 
+    let ``FParsec parses floats - CustomGenerator``() = 
         let stringGen = 
             // I'd use NormalFloat but I need to round-trip with parsing so easier to use float
             Arb.generate<float>
@@ -202,6 +207,22 @@ module FsCheckTest =
             expected = actual
         Prop.forAll stringGen fParsecFloatTest
 
+    [<Property>]
+    let ``FParsec parses floats - float converted to a string Generator``() = 
+        let stringFloatGen = 
+            // I'd use FsCheck's NormalFloat but I need to round-trip with parsing so easier to start with float
+            Arb.generate<float>
+            // FParsec can't handle infinities, nan
+            |> Gen.filter (fun x -> (x <> infinity && x <> -infinity && x <> nan) )
+            |> Gen.map (fun x -> (x.ToString("G17")))
+            |> Gen.filter (fun x -> (x <> "NaN") )
+            // Sometimes imposssible to produce a rountrippable float?
+            |> Arb.fromGen
+        let fParsecFloatTest str = 
+            let expected = System.Double.Parse(str)
+            let actual = parse pfloat str
+            expected = actual
+        Prop.forAll stringFloatGen fParsecFloatTest
 
 module FsCheckProp = 
     open Xunit
@@ -281,8 +302,13 @@ module FsCheckProp =
 
     [<Property>]
     [<Trait("FsCheck","FsCheckProp")>]
-    let testingRevRev () = 
-        Prop.forAll Arb.from<int list> revRevIsOrig
+    let propforallTestRevRev () = 
+        let revRevIsOrig (xs:list<int>) = 
+            let actual = List.rev(List.rev xs)
+            let expected = xs
+            actual = expected
+        Prop.forAll Arb.from<list<int>> revRevIsOrig
+    Check.Quick propforallTestRevRev
 
     [<Property>]
     [<Trait("FsCheck","FsCheckProp")>]
@@ -290,6 +316,7 @@ module FsCheckProp =
         let divideByZero (x:int) = 
             x/0
         Prop.throws<System.Exception,_> (lazy (divideByZero))
+    
 
 
 

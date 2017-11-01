@@ -78,6 +78,7 @@ module NodaExperiments =
     Arb.register<Generators>() |> ignore 
 
     [<Property ( Arbitrary=[| typeof<Generators> |] )>]
+    [<Trait("FsCheck","NodaTime")>]
     let ``NodaTime Instants can be round-tripped using JSON`` (x) = 
             let jsonInstant = JsonConvert.SerializeObject(x, Formatting.None, NodaConverters.InstantConverter)
             let settings = new JsonSerializerSettings( 
@@ -85,3 +86,28 @@ module NodaExperiments =
                                         DateParseHandling = DateParseHandling.None )
             x = JsonConvert.DeserializeObject<Instant>(jsonInstant, settings)
 
+
+       
+    [<Property>]
+    [<Trait("FsCheck","NodaTime")>]
+    let ``NodaTime Instants round-tripped using JSON test`` (instant:NodaTime.Instant) = 
+            let expected = instant
+            let instantAsJson = JsonConvert.SerializeObject(instant, Formatting.None, NodaConverters.InstantConverter)
+            let settings = new JsonSerializerSettings( 
+                                        Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
+                                        DateParseHandling = DateParseHandling.None )
+            let actual = JsonConvert.DeserializeObject<Instant>(instantAsJson, settings)
+            expected = actual
+
+    // Define as a function so that value is evaluated when necessary
+    let nodaTimeInstantGenerator () = 
+        Arb.generate<System.DateTime>
+                    |> Gen.map (fun dt -> dt.ToUniversalTime())
+                    |> Gen.map (fun dt -> Instant.FromDateTimeUtc dt)
+                    |> Arb.fromGen
+
+    [<Property>]
+    [<Trait("FsCheck","NodaTime")>]
+    let ``NodaTime Instants round-tripped using JSON and Prop.forAll`` () =
+        // This works when defined here.
+        Prop.forAll (nodaTimeInstantGenerator()) ``NodaTime Instants round-tripped using JSON test``
