@@ -1,15 +1,15 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
-    #r @"..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll"
-    #r @"..\packages\NodaTime.2.2.1\lib\net45\NodaTime.dll"
-    #r @"..\packages\NodaTime.Serialization.JsonNet.2.0.0\lib\net45\NodaTime.Serialization.JsonNet.dll"
-    #r @"..\packages\NodaTime.Testing.2.2.1\lib\net45\NodaTime.Testing.dll"
-    #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
-    #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
-    #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
-    #r @"..\packages\xunit.extensibility.core.2.3.0\lib\netstandard1.1\xunit.core.dll"
-    #r @"..\packages\xunit.extensibility.execution.2.3.0\lib\net452\xunit.execution.desktop.dll"
-    #r @"..\packages\FsCheck.Xunit.2.10.3\lib\net452\FsCheck.Xunit.dll"
+    #r @"..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll"
+    #r @"..\packages\NodaTime\lib\net45\NodaTime.dll"
+    #r @"..\packages\NodaTime.Serialization.JsonNet\lib\net45\NodaTime.Serialization.JsonNet.dll"
+    #r @"..\packages\NodaTime.Testing\lib\net45\NodaTime.Testing.dll"
+    #r @"..\packages\FsCheck\lib\net452\FsCheck.dll"
+    #r @"..\packages\xunit.runner.visualstudio\build\net20\..\_common\xunit.abstractions.dll"
+    #r @"..\packages\xunit.assert\lib\netstandard1.1\xunit.assert.dll"
+    #r @"..\packages\xunit.extensibility.core\lib\netstandard1.1\xunit.core.dll"
+    #r @"..\packages\xunit.extensibility.execution\lib\net452\xunit.execution.desktop.dll"
+    #r @"..\packages\FsCheck.Xunit\lib\net452\FsCheck.Xunit.dll"
 #endif
 
 namespace fSharpExperiments
@@ -74,40 +74,101 @@ module NodaExperiments =
             |> Gen.map (fun dt -> dt.ToUniversalTime())
             |> Gen.map (fun dt -> Instant.FromDateTimeUtc dt)
             |> Arb.fromGen
-    
+
     Arb.register<Generators>() |> ignore 
 
     [<Property ( Arbitrary=[| typeof<Generators> |] )>]
     [<Trait("FsCheck","NodaTime")>]
     let ``NodaTime Instants can be round-tripped using JSON`` (x) = 
-            let jsonInstant = JsonConvert.SerializeObject(x, Formatting.None, NodaConverters.InstantConverter)
-            let settings = new JsonSerializerSettings( 
-                                        Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
-                                        DateParseHandling = DateParseHandling.None )
-            x = JsonConvert.DeserializeObject<Instant>(jsonInstant, settings)
+        let jsonInstant = JsonConvert.SerializeObject(x, Formatting.None, NodaConverters.InstantConverter)
+        let settings = new JsonSerializerSettings( 
+                            Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
+                            DateParseHandling = DateParseHandling.None )
+        x = JsonConvert.DeserializeObject<Instant>(jsonInstant, settings)
 
-
-       
     [<Property>]
     [<Trait("FsCheck","NodaTime")>]
     let ``NodaTime Instants round-tripped using JSON test`` (instant:NodaTime.Instant) = 
-            let expected = instant
-            let instantAsJson = JsonConvert.SerializeObject(instant, Formatting.None, NodaConverters.InstantConverter)
-            let settings = new JsonSerializerSettings( 
-                                        Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
-                                        DateParseHandling = DateParseHandling.None )
-            let actual = JsonConvert.DeserializeObject<Instant>(instantAsJson, settings)
-            expected = actual
+        let expected = instant
+        let instantAsJson = JsonConvert.SerializeObject(instant, Formatting.None, NodaConverters.InstantConverter)
+        let settings = new JsonSerializerSettings( 
+                            Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
+                            DateParseHandling = DateParseHandling.None )
+        let actual = JsonConvert.DeserializeObject<Instant>(instantAsJson, settings)
+        expected = actual
 
     // Define as a function so that value is evaluated when necessary
-    let nodaTimeInstantGenerator () = 
-        Arb.generate<System.DateTime>
-                    |> Gen.map (fun dt -> dt.ToUniversalTime())
-                    |> Gen.map (fun dt -> Instant.FromDateTimeUtc dt)
-                    |> Arb.fromGen
+
 
     [<Property>]
     [<Trait("FsCheck","NodaTime")>]
     let ``NodaTime Instants round-tripped using JSON and Prop.forAll`` () =
-        // This works when defined here.
+        let ``NodaTime Instants round-tripped using JSON test`` (instant:NodaTime.Instant) = 
+            let expected = instant
+            let instantAsJson = JsonConvert.SerializeObject(instant, Formatting.None, NodaConverters.InstantConverter)
+            let settings = new JsonSerializerSettings( 
+                                Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
+                                DateParseHandling = DateParseHandling.None )
+            let actual = JsonConvert.DeserializeObject<Instant>(instantAsJson, settings)
+            expected = actual
+        let nodaTimeInstantGenerator = 
+            Arb.generate<System.DateTime>
+            |> Gen.map (fun dt -> dt.ToUniversalTime())
+            |> Gen.map (fun dt -> Instant.FromDateTimeUtc dt)
+            |> Arb.fromGen
+        Prop.forAll nodaTimeInstantGenerator ``NodaTime Instants round-tripped using JSON test``
+
+    let nodaTimeInstantGenerator ()= 
+        Arb.generate<System.DateTime>
+        |> Gen.map (fun dt -> dt.ToUniversalTime())
+        |> Gen.map (fun dt -> Instant.FromDateTimeUtc dt)
+        |> Arb.fromGen
+
+    [<Property>]
+    [<Trait("FsCheck","NodaTime")>]
+    let ``NodaTime Instants round-tripped using JSON and Prop.forAll - external generator`` () =
+        let ``NodaTime Instants round-tripped using JSON test`` (instant:NodaTime.Instant) = 
+            let expected = instant
+            let instantAsJson = JsonConvert.SerializeObject(instant, Formatting.None, NodaConverters.InstantConverter)
+            let settings = new JsonSerializerSettings( 
+                            Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
+                            DateParseHandling = DateParseHandling.None )
+            let actual = JsonConvert.DeserializeObject<Instant>(instantAsJson, settings)
+            expected = actual
         Prop.forAll (nodaTimeInstantGenerator()) ``NodaTime Instants round-tripped using JSON test``
+
+    type NodaTimeGen =
+        static member Instant() =
+            Arb.generate<System.DateTime>
+            |> Gen.map (fun dt -> dt.ToUniversalTime())
+            |> Gen.map (fun dt -> Instant.FromDateTimeUtc dt)
+            |> Arb.fromGen
+    
+    Arb.register<NodaTimeGen>() |> ignore 
+
+    [<Property ( Arbitrary=[| typeof<NodaTimeGen> |] )>]
+    [<Trait("FsCheck","NodaTime")>]
+    let ``NodaTime Instants round-tripped using JSON test - using Custom Arbitrary`` (instant:NodaTime.Instant) = 
+        let expected = instant
+        let instantAsJson = JsonConvert.SerializeObject(instant, Formatting.None, NodaConverters.InstantConverter)
+        let settings = new JsonSerializerSettings( 
+                        Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
+                        DateParseHandling = DateParseHandling.None )
+        let actual = JsonConvert.DeserializeObject<Instant>(instantAsJson, settings)
+        expected = actual
+
+    [<Property>]
+    [<Trait("FsCheck","NodaTime")>]
+    let ``NodaTime Instants round-tripped using JSON - Prop.forAll TIE figher verision`` () =
+        Arb.generate<System.DateTime>
+        |> Gen.map (fun dt -> dt.ToUniversalTime())
+        |> Gen.map (fun dt -> Instant.FromDateTimeUtc dt)
+        |> Arb.fromGen
+        |> Prop.forAll <| fun instant -> 
+            let expected = instant
+            let instantAsJson = JsonConvert.SerializeObject(instant, Formatting.None, NodaConverters.InstantConverter)
+            let settings = new JsonSerializerSettings( 
+                            Converters =  ([| NodaConverters.InstantConverter |] :> IList<JsonConverter>),
+                            DateParseHandling = DateParseHandling.None )
+            let actual = JsonConvert.DeserializeObject<Instant>(instantAsJson, settings)
+            expected = actual

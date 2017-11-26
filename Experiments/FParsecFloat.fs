@@ -1,11 +1,11 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
-    #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
-    #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
-    #r @"..\packages\xunit.extensibility.core.2.3.0\lib\netstandard1.1\xunit.core.dll"
-    #r @"..\packages\xunit.extensibility.execution.2.3.0\lib\net452\xunit.execution.desktop.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
+    #r @"..\packages\xunit.runner.visualstudio\build\net20\..\_common\xunit.abstractions.dll"
+    #r @"..\packages\xunit.assert\lib\netstandard1.1\xunit.assert.dll"
+    #r @"..\packages\xunit.extensibility.core\lib\netstandard1.1\xunit.core.dll"
+    #r @"..\packages\xunit.extensibility.execution\lib\net452\xunit.execution.desktop.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsecCS.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsec.dll"
 #endif
 
 namespace fSharpExperiments
@@ -35,7 +35,7 @@ module FParsecFloatTest =
         // https://www.richard-banks.org/2015/07/stop-using-assertthrows-in-your-bdd.html
         // pfloat should return a float which needs to be ignored
         let ex = Record.Exception(fun () -> parse pfloat "1.25E 3" |> ignore)
-        Assert.IsType<ParseError>(ex)
+        Assert.IsType<ParseError>(ex) |> ignore
         // or http://www.bjoernrochel.de/2010/04/19/testing-f-code-with-xunit-net-on-net-4-0/
         Assert.Throws<ParseError>(fun () -> parse pfloat "1.25E 3" |> ignore)
     

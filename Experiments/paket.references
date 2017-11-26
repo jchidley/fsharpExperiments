@@ -1,0 +1,13 @@
+Newtonsoft.Json
+Xunit
+FsCheck
+FsCheck.Xunit
+NodaTime
+NodaTime.Serialization.JsonNet
+FParsec
+FSharp.Formatting
+xunit.runner.visualstudio
+SQLProvider
+MySqlConnector
+MySql.Data
+M2Mqtt 

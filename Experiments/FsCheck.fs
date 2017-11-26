@@ -1,13 +1,13 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
-    #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
-    #r @"..\packages\FsCheck.Xunit.2.10.3\lib\net452\FsCheck.Xunit.dll"
-    #r @"..\packages\xunit.runner.visualstudio.2.3.1\build\net20\..\_common\xunit.abstractions.dll"
-    #r @"..\packages\xunit.assert.2.3.1\lib\netstandard1.1\xunit.assert.dll"
-    #r @"..\packages\xunit.extensibility.core.2.3.1\lib\netstandard1.1\xunit.core.dll"
-    #r @"..\packages\xunit.extensibility.execution.2.3.1\lib\net452\xunit.execution.desktop.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
+    #r @"..\packages\FsCheck\lib\net452\FsCheck.dll"
+    #r @"..\packages\FsCheck.Xunit\lib\net452\FsCheck.Xunit.dll"
+    #r @"..\packages\xunit.runner.visualstudio\build\net20\..\_common\xunit.abstractions.dll"
+    #r @"..\packages\xunit.assert\lib\netstandard1.1\xunit.assert.dll"
+    #r @"..\packages\xunit.extensibility.core\lib\netstandard1.1\xunit.core.dll"
+    #r @"..\packages\xunit.extensibility.execution\lib\net452\xunit.execution.desktop.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsecCS.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsec.dll"
 #endif
 
 namespace fSharpExperiments

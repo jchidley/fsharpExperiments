@@ -1,13 +1,13 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
-    #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
-    #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
-    #r @"..\packages\xunit.extensibility.core.2.3.0\lib\netstandard1.1\xunit.core.dll"
-    #r @"..\packages\xunit.extensibility.execution.2.3.0\lib\net452\xunit.execution.desktop.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
-    #r @"..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll"
-    #r @"..\packages\FsCheck.Xunit.2.10.3\lib\net452\FsCheck.Xunit.dll"
+    #r @"..\packages\xunit.runner.visualstudio\build\net20\..\_common\xunit.abstractions.dll"
+    #r @"..\packages\xunit.assert\lib\netstandard1.1\xunit.assert.dll"
+    #r @"..\packages\xunit.extensibility.core\lib\netstandard1.1\xunit.core.dll"
+    #r @"..\packages\xunit.extensibility.execution\lib\net452\xunit.execution.desktop.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsecCS.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsec.dll"
+    #r @"..\packages\FsCheck\lib\net452\FsCheck.dll"
+    #r @"..\packages\FsCheck.Xunit\lib\net452\FsCheck.Xunit.dll"
 #endif
 
 namespace fSharpExperiments
@@ -69,19 +69,9 @@ module JSONParser =
     
     let pJNumber:Parser<_> = pfloat |>> JNumber
 
-    // https://github.com/fscheck/FsCheck/issues/103
-    type Letters =
-        static member Char() = Gen.elements ['A' .. 'Z'] |> Arb.fromGen
-
-    [<Property( Arbitrary=[| typeof<Letters> |])>]
-    let ``Diamond is non-empty`` (letter : char) =
-        let actual = letter
-        let chars = ['A'..'Z']
-        Assert.True(chars |> List.contains letter)
-
     [<Property;Trait("Parse","Json")>]
     let ``parse JSON numbers`` (x:float) =
-        let y = if (x = infinity || x = -infinity) then 0.0 else x
+        let y = if (x = infinity || x = -infinity ) then 0.0 else x
         let expected = JNumber (System.Double.Parse(y.ToString("G17")))
         let actual = parse pJNumber (y.ToString("G17"))
         Assert.Equal(expected, actual)

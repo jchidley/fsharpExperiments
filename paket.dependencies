@@ -1,0 +1,15 @@
+source https://www.nuget.org/api/v2/
+
+nuget Newtonsoft.Json
+nuget Xunit
+nuget FsCheck
+nuget FsCheck.Xunit
+nuget NodaTime
+nuget NodaTime.Serialization.JsonNet
+nuget FParsec
+nuget FSharp.Formatting
+nuget xunit.runner.visualstudio
+nuget SQLProvider
+nuget MySqlConnector
+nuget MySql.Data
+nuget M2Mqtt 

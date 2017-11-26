@@ -1,11 +1,11 @@
 #if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
-    #r @"..\packages\xunit.runner.visualstudio.2.3.0\build\net20\..\_common\xunit.abstractions.dll"
-    #r @"..\packages\xunit.assert.2.3.0\lib\netstandard1.1\xunit.assert.dll"
-    #r @"..\packages\xunit.extensibility.core.2.3.0\lib\netstandard1.1\xunit.core.dll"
-    #r @"..\packages\xunit.extensibility.execution.2.3.0\lib\net452\xunit.execution.desktop.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsecCS.dll"
-    #r @"..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll"
+    #r @"..\packages\xunit.runner.visualstudio\build\net20\..\_common\xunit.abstractions.dll"
+    #r @"..\packages\xunit.assert\lib\netstandard1.1\xunit.assert.dll"
+    #r @"..\packages\xunit.extensibility.core\lib\netstandard1.1\xunit.core.dll"
+    #r @"..\packages\xunit.extensibility.execution\lib\net452\xunit.execution.desktop.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsecCS.dll"
+    #r @"..\packages\FParsec\lib\net40-client\FParsec.dll"
 #endif
 
 namespace fSharpExperiments
