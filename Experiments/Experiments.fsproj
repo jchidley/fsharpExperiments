@@ -138,6 +138,7 @@
     <Content Include="packages.config" />
     <Compile Include="MySql.fs" />
     <Compile Include="M2Mqtt.fs" />
+    <Compile Include="OneWire.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="StriderMqtt">

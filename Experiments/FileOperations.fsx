@@ -21,7 +21,8 @@ module investingFiles =
     let renameFile filename =
         let fi = FileInfo(filename)
         let name = fi.FullName.Substring(0, fi.FullName.IndexOf(fi.Extension))
-        let date = fi.CreationTimeUtc.ToString(" yyyy-MM-dd")
+        // Used to be CreationTimeUtc but that doesn't work any more, so LastWriteTime I'm hoping is modification time
+        let date = fi.LastWriteTimeUtc.ToString(" yyyy-MM-dd")
         (name + date + fi.Extension)
 
     let fullPath dir files :string list= 
@@ -36,7 +37,7 @@ module investingFiles =
     let renamedFiles = fi |> List.map renameFile
 
     let downloadDir = @"S:\DadOnly\Downloads"
-    let downloadFiles = ["portfolio-export.csv";"portfolio-export (1).csv";"portfolio-export (2).csv";"portfolio-export (3).csv"] 
+    let downloadFiles = ["portfolio-export.csv";"portfolio-export(1).csv";"portfolio-export(2).csv";"portfolio-export(3).csv"] 
                             |> fullPath downloadDir 
 
     let moveFile fl = 
