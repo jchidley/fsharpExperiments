@@ -1,15 +1,10 @@
 ﻿#if INTERACTIVE 
     #I __SOURCE_DIRECTORY__
-    #r @"..\packages\xunit.runner.visualstudio\build\net20\..\_common\xunit.abstractions.dll"
-    #r @"..\packages\xunit.assert\lib\netstandard1.1\xunit.assert.dll"
-    #r @"..\packages\xunit.extensibility.core\lib\netstandard1.1\xunit.core.dll"
-    #r @"..\packages\xunit.extensibility.execution\lib\net452\xunit.execution.desktop.dll"
     #r @"..\packages\FParsec\lib\net40-client\FParsecCS.dll"
     #r @"..\packages\FParsec\lib\net40-client\FParsec.dll"
 #endif
 
 module fSharpExperiments.DHCPParse =
-    open System
     open System.Diagnostics
 
     let private runCommand cmd args =

@@ -141,9 +141,7 @@
     <Content Include="packages.config" />
     <Compile Include="MySql.fs" />
     <Compile Include="M2Mqtt.fs" />
-    <Compile Include="Library.fs" />
     <None Include="Journalctl-DHCP.fsx" />
-    <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="StriderMqtt">
