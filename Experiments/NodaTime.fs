@@ -86,7 +86,7 @@ module NodaExperiments =
                             DateParseHandling = DateParseHandling.None )
         x = JsonConvert.DeserializeObject<Instant>(jsonInstant, settings)
 
-    [<Property>]
+    [<Property ( Arbitrary=[| typeof<Generators> |] )>]
     [<Trait("FsCheck","NodaTime")>]
     let ``NodaTime Instants round-tripped using JSON test`` (instant:NodaTime.Instant) = 
         let expected = instant

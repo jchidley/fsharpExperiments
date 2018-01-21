@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\xunit.core\build\xunit.core.props" Condition="Exists('..\packages\xunit.core\build\xunit.core.props')" Label="Paket" />
+  <Import Project="..\packages\xunit.runner.console.2.3.1\build\xunit.runner.console.props" Condition="Exists('..\packages\xunit.runner.console.2.3.1\build\xunit.runner.console.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,6 +16,8 @@
     <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Experiments</Name>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,7 +76,7 @@
       </PropertyGroup>
     </When>
   </Choose>
-  <Import Project="..\packages\xunit.runner.visualstudio\build\$(__paket__xunit_runner_visualstudio_props).props" Condition="Exists('..\packages\xunit.runner.visualstudio\build\$(__paket__xunit_runner_visualstudio_props).props')" Label="Paket" />
+  <Import Project="..\packages\xunit.runner.visualstudio.2.3.1\build\$(__paket__xunit_runner_visualstudio_props).props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.3.1\build\$(__paket__xunit_runner_visualstudio_props).props')" Label="Paket" />
   <Choose>
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And $(TargetFrameworkVersion) == 'v2.0') Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0')">
       <PropertyGroup>
@@ -89,7 +92,7 @@
       </PropertyGroup>
     </When>
   </Choose>
-  <Import Project="..\packages\Microsoft.NET.Test.Sdk\build\$(__paket__Microsoft_Net_Test_Sdk_props).props" Condition="Exists('..\packages\Microsoft.NET.Test.Sdk\build\$(__paket__Microsoft_Net_Test_Sdk_props).props')" Label="Paket" />
+  <Import Project="..\packages\Microsoft.NET.Test.Sdk.15.5.0\build\$(__paket__Microsoft_Net_Test_Sdk_props).props" Condition="Exists('..\packages\Microsoft.NET.Test.Sdk.15.5.0\build\$(__paket__Microsoft_Net_Test_Sdk_props).props')" Label="Paket" />
   <ItemGroup>
     <Content Include="docs\MySqlCommand.xml">
       <Paket>True</Paket>
@@ -155,6 +158,12 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\xunit.runner.console.2.3.1\build\xunit.runner.console.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.console.2.3.1\build\xunit.runner.console.props'))" />
+  </Target>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.0.3' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3' Or $(TargetFrameworkVersion) == 'v4.7' Or $(TargetFrameworkVersion) == 'v4.7.1')">
       <ItemGroup>
@@ -396,7 +405,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="Microsoft.VisualStudio.CodeCoverage.Shim">
-          <HintPath>..\packages\Microsoft.CodeCoverage\lib\netstandard1.0\Microsoft.VisualStudio.CodeCoverage.Shim.dll</HintPath>
+          <HintPath>..\packages\Microsoft.CodeCoverage.1.0.3\lib\netstandard1.0\Microsoft.VisualStudio.CodeCoverage.Shim.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -487,7 +496,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="Microsoft.DotNet.PlatformAbstractions">
-          <HintPath>..\packages\Microsoft.DotNet.PlatformAbstractions\lib\netstandard1.3\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
+          <HintPath>..\packages\Microsoft.DotNet.PlatformAbstractions.2.0.4\lib\netstandard1.3\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -498,7 +507,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="Microsoft.Extensions.DependencyModel">
-          <HintPath>..\packages\Microsoft.Extensions.DependencyModel\lib\netstandard1.6\Microsoft.Extensions.DependencyModel.dll</HintPath>
+          <HintPath>..\packages\Microsoft.Extensions.DependencyModel.2.0.4\lib\netstandard1.6\Microsoft.Extensions.DependencyModel.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -509,17 +518,17 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="Microsoft.TestPlatform.CoreUtilities">
-          <HintPath>..\packages\Microsoft.TestPlatform.ObjectModel\lib\netstandard1.5\Microsoft.TestPlatform.CoreUtilities.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.ObjectModel.15.5.0\lib\netstandard1.5\Microsoft.TestPlatform.CoreUtilities.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="Microsoft.TestPlatform.PlatformAbstractions">
-          <HintPath>..\packages\Microsoft.TestPlatform.ObjectModel\lib\netstandard1.5\Microsoft.TestPlatform.PlatformAbstractions.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.ObjectModel.15.5.0\lib\netstandard1.5\Microsoft.TestPlatform.PlatformAbstractions.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel">
-          <HintPath>..\packages\Microsoft.TestPlatform.ObjectModel\lib\netstandard1.5\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.ObjectModel.15.5.0\lib\netstandard1.5\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -530,32 +539,32 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="Microsoft.TestPlatform.CommunicationUtilities">
-          <HintPath>..\packages\Microsoft.TestPlatform.TestHost\lib\netstandard1.5\Microsoft.TestPlatform.CommunicationUtilities.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.TestHost.15.5.0\lib\netstandard1.5\Microsoft.TestPlatform.CommunicationUtilities.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="Microsoft.TestPlatform.CrossPlatEngine">
-          <HintPath>..\packages\Microsoft.TestPlatform.TestHost\lib\netstandard1.5\Microsoft.TestPlatform.CrossPlatEngine.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.TestHost.15.5.0\lib\netstandard1.5\Microsoft.TestPlatform.CrossPlatEngine.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="Microsoft.VisualStudio.TestPlatform.Common">
-          <HintPath>..\packages\Microsoft.TestPlatform.TestHost\lib\netstandard1.5\Microsoft.VisualStudio.TestPlatform.Common.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.TestHost.15.5.0\lib\netstandard1.5\Microsoft.VisualStudio.TestPlatform.Common.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="msdia140">
-          <HintPath>..\packages\Microsoft.TestPlatform.TestHost\lib\netstandard1.5\x64\msdia140.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.TestHost.15.5.0\lib\netstandard1.5\x64\msdia140.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="msdia140">
-          <HintPath>..\packages\Microsoft.TestPlatform.TestHost\lib\netstandard1.5\x86\msdia140.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.TestHost.15.5.0\lib\netstandard1.5\x86\msdia140.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="testhost">
-          <HintPath>..\packages\Microsoft.TestPlatform.TestHost\lib\netstandard1.5\testhost.dll</HintPath>
+          <HintPath>..\packages\Microsoft.TestPlatform.TestHost.15.5.0\lib\netstandard1.5\testhost.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -903,7 +912,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.AppContext">
-          <HintPath>..\packages\System.AppContext\lib\netstandard1.6\System.AppContext.dll</HintPath>
+          <HintPath>..\packages\System.AppContext.4.3.0\lib\netstandard1.6\System.AppContext.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -912,7 +921,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.AppContext">
-          <HintPath>..\packages\System.AppContext\ref\netstandard1.6\System.AppContext.dll</HintPath>
+          <HintPath>..\packages\System.AppContext.4.3.0\ref\netstandard1.6\System.AppContext.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1008,7 +1017,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')">
       <ItemGroup>
         <Reference Include="System.Collections.Immutable">
-          <HintPath>..\packages\System.Collections.Immutable\lib\netstandard1.0\System.Collections.Immutable.dll</HintPath>
+          <HintPath>..\packages\System.Collections.Immutable.1.4.0\lib\netstandard1.0\System.Collections.Immutable.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1108,7 +1117,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.ComponentModel.EventBasedAsync">
-          <HintPath>..\packages\System.ComponentModel.EventBasedAsync\lib\netstandard1.3\System.ComponentModel.EventBasedAsync.dll</HintPath>
+          <HintPath>..\packages\System.ComponentModel.EventBasedAsync.4.3.0\lib\netstandard1.3\System.ComponentModel.EventBasedAsync.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1117,7 +1126,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.ComponentModel.EventBasedAsync">
-          <HintPath>..\packages\System.ComponentModel.EventBasedAsync\ref\netstandard1.3\System.ComponentModel.EventBasedAsync.dll</HintPath>
+          <HintPath>..\packages\System.ComponentModel.EventBasedAsync.4.3.0\ref\netstandard1.3\System.ComponentModel.EventBasedAsync.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1939,7 +1948,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')">
       <ItemGroup>
         <Reference Include="System.Reflection.Metadata">
-          <HintPath>..\packages\System.Reflection.Metadata\lib\netstandard1.1\System.Reflection.Metadata.dll</HintPath>
+          <HintPath>..\packages\System.Reflection.Metadata.1.5.0\lib\netstandard1.1\System.Reflection.Metadata.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -2252,7 +2261,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Runtime.Serialization.Json">
-          <HintPath>..\packages\System.Runtime.Serialization.Json\ref\netstandard1.0\System.Runtime.Serialization.Json.dll</HintPath>
+          <HintPath>..\packages\System.Runtime.Serialization.Json.4.3.0\ref\netstandard1.0\System.Runtime.Serialization.Json.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -2261,7 +2270,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Runtime.Serialization.Json">
-          <HintPath>..\packages\System.Runtime.Serialization.Json\lib\netstandard1.3\System.Runtime.Serialization.Json.dll</HintPath>
+          <HintPath>..\packages\System.Runtime.Serialization.Json.4.3.0\lib\netstandard1.3\System.Runtime.Serialization.Json.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -3002,7 +3011,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Xml.XPath">
-          <HintPath>..\packages\System.Xml.XPath\lib\netstandard1.3\System.Xml.XPath.dll</HintPath>
+          <HintPath>..\packages\System.Xml.XPath.4.3.0\lib\netstandard1.3\System.Xml.XPath.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -3011,7 +3020,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Xml.XPath">
-          <HintPath>..\packages\System.Xml.XPath\ref\netstandard1.3\System.Xml.XPath.dll</HintPath>
+          <HintPath>..\packages\System.Xml.XPath.4.3.0\ref\netstandard1.3\System.Xml.XPath.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -3022,7 +3031,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Xml.XPath.XmlDocument">
-          <HintPath>..\packages\System.Xml.XPath.XmlDocument\lib\netstandard1.3\System.Xml.XPath.XmlDocument.dll</HintPath>
+          <HintPath>..\packages\System.Xml.XPath.XmlDocument.4.3.0\lib\netstandard1.3\System.Xml.XPath.XmlDocument.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -3031,7 +3040,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Xml.XPath.XmlDocument">
-          <HintPath>..\packages\System.Xml.XPath.XmlDocument\ref\netstandard1.3\System.Xml.XPath.XmlDocument.dll</HintPath>
+          <HintPath>..\packages\System.Xml.XPath.XmlDocument.4.3.0\ref\netstandard1.3\System.Xml.XPath.XmlDocument.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -3100,9 +3109,9 @@
       </ItemGroup>
     </When>
   </Choose>
-  <Import Project="..\packages\Microsoft.NET.Test.Sdk\build\$(__paket__Microsoft_Net_Test_Sdk_targets).targets" Condition="Exists('..\packages\Microsoft.NET.Test.Sdk\build\$(__paket__Microsoft_Net_Test_Sdk_targets).targets')" Label="Paket" />
+  <Import Project="..\packages\Microsoft.NET.Test.Sdk.15.5.0\build\$(__paket__Microsoft_Net_Test_Sdk_targets).targets" Condition="Exists('..\packages\Microsoft.NET.Test.Sdk.15.5.0\build\$(__paket__Microsoft_Net_Test_Sdk_targets).targets')" Label="Paket" />
   <Import Project="..\packages\NETStandard.Library\build\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library\build\NETStandard.Library.targets')" Label="Paket" />
   <Import Project="..\packages\NETStandard.Library\build\$(__paket__NETStandard_Library_targets).targets" Condition="Exists('..\packages\NETStandard.Library\build\$(__paket__NETStandard_Library_targets).targets')" Label="Paket" />
   <Import Project="..\packages\xunit.core\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core\build\xunit.core.targets')" Label="Paket" />
-  <Import Project="..\packages\xunit.runner.visualstudio\build\$(__paket__xunit_runner_visualstudio_targets).targets" Condition="Exists('..\packages\xunit.runner.visualstudio\build\$(__paket__xunit_runner_visualstudio_targets).targets')" Label="Paket" />
+  <Import Project="..\packages\xunit.runner.visualstudio.2.3.1\build\$(__paket__xunit_runner_visualstudio_targets).targets" Condition="Exists('..\packages\xunit.runner.visualstudio.2.3.1\build\$(__paket__xunit_runner_visualstudio_targets).targets')" Label="Paket" />
 </Project>

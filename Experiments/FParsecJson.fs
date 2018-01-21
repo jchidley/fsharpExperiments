@@ -44,10 +44,16 @@ module JSONParser =
 
 module JSONParserTest = 
     open JSONParser
-    open FParsec
     open Xunit
-    open FsCheck
     open FsCheck.Xunit
+
+    let stringFloatThatCanBeRoundTripped (x:float) =
+        let y = 
+            match x with
+            | float.PositiveInfinity -> System.Double.MaxValue
+            | float.NegativeInfinity -> System.Double.MinValue
+            | _ -> x
+        y.ToString("G17")
 
     [<Fact;Trait("Parse","Json")>]
     let ``create JSON Objects`` () =
@@ -66,17 +72,11 @@ module JSONParserTest =
         let actual = JSONParser.parse pJNull "null"
         Assert.Equal(expected, actual)
 
-    [<Fact;Trait("Parse","Json")>]
-    let ``parse JSON booleans`` () =
-        let expected = JBool true, JBool false
-        let actual = JSONParser.parse pJBool "true", JSONParser.parse pJBool "false"
-        Assert.Equal(expected, actual)
-
     [<Property;Trait("Parse","Json")>]
     let ``parse JSON numbers`` (x:float) =
-        let y = if (x = infinity || x = -infinity ) then 0.0 else x
-        let expected = JNumber (System.Double.Parse(y.ToString("G17")))
-        let actual = JSONParser.parse pJNumber (y.ToString("G17"))
+        let y = stringFloatThatCanBeRoundTripped x
+        let expected = System.Double.Parse(y)
+        let (JNumber actual) = JSONParser.parse pJNumber y
         Assert.Equal(expected, actual)
     
     [<Fact;Trait("Parse","Json")>]

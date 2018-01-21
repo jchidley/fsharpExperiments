@@ -10,7 +10,7 @@
 
 namespace fSharpExperiments
 
-module FParsecFloatTest =
+module FParsecFloat =
     open FParsec
     open Xunit
 
@@ -24,6 +24,56 @@ module FParsecFloatTest =
         match run parser input with 
             | Success (result, _, _) -> result
             | Failure (error, _, _) -> raise (ParseError error) 
+    
+//    type UserState = unit // doesn't have to be unit, of course
+//    type Parser<'t> = Parser<'t, UserState>
+
+    let str s = pstring s
+    let floatBetweenBrackets = str "[" >>. pfloat .>> str "]"
+// need this line if you don't run an example first.
+//     let floatBetweenBrackets:Parser<_> = str "[" >>. pfloat .>> str "]"
+// the above line not needed if you do this:    
+    test floatBetweenBrackets "[1.0]" |> ignore
+
+
+    let betweenStrings s1 s2 p = str s1 >>. p .>> str s2
+
+    let floatBetweenBrackets2 = pfloat |> betweenStrings "[" "]"
+    test floatBetweenBrackets2 "[2.0]" |> ignore
+    let floatBetweenDoubleBrackets = pfloat |> betweenStrings "[[" "]]"
+    test floatBetweenDoubleBrackets "[[2.0]]" |> ignore
+
+// "between" is in the FParsec library
+// let between pBegin pEnd p  = pBegin >>. p .>> pEnd
+    let betweenStrings3 s1 s2 p = p |> between (str s1) (str s2)
+    let betweenCurlies = pfloat |> betweenStrings3 "{" "}"
+    test betweenCurlies "{4.0}" |> ignore
+    
+    let r = parse (many floatBetweenBrackets) "[2][3][4]"
+    
+    test (many1 (floatBetweenBrackets <?> "float between brackets")) "(1)"
+
+    let floatList = str "[" >>. sepBy pfloat (str ",") .>> str "]"
+    parse floatList "[4,5,6]" |> ignore
+
+    let ws = spaces
+    let str_ws s = pstring s .>> ws
+    let float_ws = pfloat .>> ws
+    let numberList = str_ws "[" >>. sepBy float_ws (str_ws ",") .>> str_ws "]"
+    parse numberList @"[ 1 ,
+                          2 ] " |> ignore
+    test numberList @"[ 1,
+                         2; 3]"
+
+    let numberListFile = ws >>. numberList .>> eof
+    test numberListFile " [1, 2, 3] [4]"
+
+module FParsecFloatTest = 
+    open FParsec
+    open FParsecFloat
+    open Xunit
+    open FsCheck.Xunit
+
 
     [<Fact;Trait("Parse","Float")>]
     let ``"1.25" is parsed as 1.25f`` () =
@@ -38,16 +88,6 @@ module FParsecFloatTest =
         Assert.IsType<ParseError>(ex) |> ignore
         // or http://www.bjoernrochel.de/2010/04/19/testing-f-code-with-xunit-net-on-net-4-0/
         Assert.Throws<ParseError>(fun () -> parse pfloat "1.25E 3" |> ignore)
-    
-//    type UserState = unit // doesn't have to be unit, of course
-//    type Parser<'t> = Parser<'t, UserState>
-
-    let str s = pstring s
-    let floatBetweenBrackets = str "[" >>. pfloat .>> str "]"
-// need this line if you don't run an example first.
-//     let floatBetweenBrackets:Parser<_> = str "[" >>. pfloat .>> str "]"
-// the above line not needed if you do this:    
-    test floatBetweenBrackets "[1.0]" |> ignore
     
     [<Fact;Trait("Parse","Float")>]
     let ``Parsing [1.0] works`` () =
@@ -64,13 +104,6 @@ module FParsecFloatTest =
         let ex = Record.Exception(fun () -> parse floatBetweenBrackets "[1.0"  |> ignore)
         Assert.IsType<ParseError>(ex)
 
-    let betweenStrings s1 s2 p = str s1 >>. p .>> str s2
-
-    let floatBetweenBrackets2 = pfloat |> betweenStrings "[" "]"
-    test floatBetweenBrackets2 "[2.0]" |> ignore
-    let floatBetweenDoubleBrackets = pfloat |> betweenStrings "[[" "]]"
-    test floatBetweenDoubleBrackets "[[2.0]]" |> ignore
-
     [<Fact;Trait("Parse","Float")>]
     let ``parse floatBetweenBrackets2 "[2.0]"`` () = 
         let r = parse floatBetweenBrackets "[2.0]"
@@ -81,18 +114,10 @@ module FParsecFloatTest =
         let r = parse floatBetweenDoubleBrackets "[[3.0]]"
         Assert.Equal(3.0,r)
 
-// "between" is in the FParsec library
-// let between pBegin pEnd p  = pBegin >>. p .>> pEnd
-    let betweenStrings3 s1 s2 p = p |> between (str s1) (str s2)
-    let betweenCurlies = pfloat |> betweenStrings3 "{" "}"
-    test betweenCurlies "{4.0}" |> ignore
-
     [<Fact;Trait("Parse","Float")>]
     let ``parse betweenCurlies "{4.0}"`` () = 
         let r = parse betweenCurlies "{4.0}"
         Assert.Equal(4.0,r)
-    
-    let r = parse (many floatBetweenBrackets) "[2][3][4]"
 
     [<Fact;Trait("Parse","Float")>]
     let ``parse (many floatBetweenBrackets) ""`` () = 
@@ -118,11 +143,6 @@ module FParsecFloatTest =
     let ``parse (many1 floatBetweenBrackets) "(1)" FAIL`` () = 
         let ex = Record.Exception(fun () -> parse (many1 floatBetweenBrackets) "(1)" |> ignore)
         Assert.IsType<ParseError>(ex)
-    
-    test (many1 (floatBetweenBrackets <?> "float between brackets")) "(1)"
-
-    let floatList = str "[" >>. sepBy pfloat (str ",") .>> str "]"
-    parse floatList "[4,5,6]" |> ignore
 
     [<Fact;Trait("Parse","Float")>]
     let ``parse floatList "[1,2,3]"`` () = 
@@ -143,15 +163,3 @@ module FParsecFloatTest =
     let ``parse floatBetweenBrackets "[1.0, 2.0]" FAIL`` () = 
         let ex = Record.Exception(fun () -> parse floatBetweenBrackets "[1.0, 2.0]" |> ignore)
         Assert.IsType<ParseError>(ex)
-    
-    let ws = spaces
-    let str_ws s = pstring s .>> ws
-    let float_ws = pfloat .>> ws
-    let numberList = str_ws "[" >>. sepBy float_ws (str_ws ",") .>> str_ws "]"
-    parse numberList @"[ 1 ,
-                          2 ] " |> ignore
-    test numberList @"[ 1,
-                         2; 3]"
-
-    let numberListFile = ws >>. numberList .>> eof
-    test numberListFile " [1, 2, 3] [4]"

@@ -60,10 +60,10 @@ module FsCheckTest =
     [<Property>]
     let revRevIsOrig (xs:list<int>) = List.rev(List.rev xs) = xs
     [<Property>]
-    let revRevIsOrigFail (xs:list<int>) = List.rev xs = xs
+    let ``revRevIsOrig FAIL`` (xs:list<int>) = List.rev xs = xs
 
     Check.Quick revRevIsOrig
-    Check.Quick revRevIsOrigFail
+    Check.Quick ``revRevIsOrig FAIL``
 
     let revRevIsOrigFloat (xs:list<float>) = List.rev(List.rev xs) = xs
     Check.Quick revRevIsOrigFloat
@@ -161,34 +161,23 @@ module FsCheckTest =
             let expected = xs
             actual = expected
 
+    let stringFloatThatCanBeRoundTripped (x:float) =
+        let y = match x with
+                | System.Double.PositiveInfinity -> System.Double.MaxValue
+                | System.Double.NegativeInfinity -> System.Double.MinValue
+                | nan -> 0.0
+        y.ToString("G17")
+
     [<Property>]
     let ``FParsec correctly parses floats``(x:float) =  
-        let str = x.ToString()
-        let expected = System.Double.Parse(str)
-        let actual = parse pfloat str
+        let y = stringFloatThatCanBeRoundTripped x
+        let expected = System.Double.Parse(y)
+        let actual = parse pfloat y
         expected = actual
     
     [<Property>]
     let ``FParsec parses floats - Prop.forAll``() = 
-        let ``FParsec correctly parses floats``(x:float) =  
-            let str = x.ToString()
-            let expected = System.Double.Parse(str)
-            let actual = parse pfloat str
-            expected = actual
         Prop.forAll Arb.from<float> ``FParsec correctly parses floats``
-    
-    [<Property>]
-    let ``FParsec parses floats - custom float prototype``() = 
-        let floatLikeDataGenerator = 
-            Arb.generate<float>
-            |> Gen.filter (fun x -> (x <> infinity && x <> -infinity && x <> nan) )
-            |> Arb.fromGen
-        let ``FParsec correctly parses floats``(x:float) =  
-            let str = x.ToString()
-            let expected = System.Double.Parse(str)
-            let actual = parse pfloat str
-            expected = actual
-        Prop.forAll floatLikeDataGenerator ``FParsec correctly parses floats``
 
     [<Property>]
     let ``FParsec parses floats - CustomGenerator``() = 
@@ -206,7 +195,7 @@ module FsCheckTest =
             let actual = parse pfloat str
             expected = actual
         Prop.forAll stringGen fParsecFloatTest
-
+ 
     [<Property>]
     let ``FParsec parses floats - float converted to a string Generator``() = 
         let stringFloatGen = 
@@ -239,7 +228,6 @@ module FsCheckProp =
         match xs with
             | [] -> [x]
             | c::cs -> if x <= c then x::xs else c::(insert x cs)
-
 
     [<Property>]
     [<Trait("FsCheck","FsCheckProp")>]
