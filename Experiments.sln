@@ -5,7 +5,6 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{056C2746-9BCE-4310-8307-C859376FD7C9}"
 	ProjectSection(SolutionItems) = preProject
-		Experiments\OneWire.fs = Experiments\OneWire.fs
 		paket.dependencies = paket.dependencies
 	EndProjectSection
 EndProject

@@ -68,11 +68,56 @@ module MySql =
 
     FSharp.Data.Sql.Common.QueryEvents.SqlQueryEvent |> Event.add (printfn "Executing SQL: %O")
 
+
+    let employeesFirstName = 
+        query {
+            for emp in ctxClassicModels.Classicmodels.Employees do
+            select (emp.FirstName)
+            } |> Seq.head
+
     let customersQuery = 
         query { 
             for customer in ctxClassicModels.Classicmodels.Customers do
                 select customer
         }
         |> Seq.length
+    
+    ()
 
-    let b = ctxClassicModels.Classicmodels.Customers.Individuals.``As ContactFirstName``.``124, Susan``
+
+module MySqlds18b20 = 
+    open FSharp.Data.Sql
+
+    [<Literal>]
+    let connString  = "Server=pi3debian1;Database=turd;User=jack;Password=kJyoZYyRB0Iv0JmfZ7tq"
+    [<Literal>]
+    let dbVendor    = Common.DatabaseProviderTypes.MYSQL
+    [<Literal>]
+    let resPath = @"C:\Users\jackc\Documents\Git\fsharpExperiments\packages\MySql.Data\lib\net452"
+    [<Literal>]
+    let indivAmount = 1000
+    [<Literal>]
+    let useOptTypes = true
+
+    type sql = SqlDataProvider<
+                    dbVendor,
+                    connString,
+                    ResolutionPath = resPath,
+                    IndividualsAmount = indivAmount,
+                    UseOptionTypes = useOptTypes
+                >
+    let ctx = sql.GetDataContext()
+    
+    ctx.Turd.Ds18b20.``Create(datetime, sensor, temperature)``(System.DateTime.Now,"041684B58AFF",(float32 19.375)) |> ignore
+    ctx.Turd.Ds18b20.``Create(datetime, sensor, temperature)``(System.DateTime.Now,"041684A9F1FF",(float32 18.625)) |> ignore
+    ctx.Turd.Ds18b20.``Create(datetime, sensor, temperature)``(System.DateTime.Now,"041684AC4BFF",(float32 18.8125)) |> ignore
+    ctx.Turd.Ds18b20.``Create(datetime, sensor, temperature)``(System.DateTime.Now,"0416848A0FFF",(float32 21.0625)) |> ignore
+    ctx.SubmitUpdates()
+
+    let tempQuery = 
+        query { 
+            for record in ctx.Turd.Ds18b20 do
+                select record
+        }
+
+    let first = tempQuery |> Seq.head

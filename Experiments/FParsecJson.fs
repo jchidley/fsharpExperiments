@@ -14,10 +14,6 @@ namespace fSharpExperiments
 
 module JSONParser = 
     open FParsec
-    open Xunit
-    open FsCheck
-    open FsCheck.Xunit
-    open System.IO.Compression
 
     type UserState = unit // doesn't have to be unit, of course
     type Parser<'t> = Parser<'t, UserState>
@@ -40,6 +36,19 @@ module JSONParser =
         | JArray of Json list
         | JObject of Map<string, Json>
 
+    let pJNull:Parser<_> = stringReturn "null" JNull
+
+    let pJBool:Parser<_> = stringReturn "true" (JBool true) <|> stringReturn "false" (JBool false)
+
+    let pJNumber:Parser<_> = pfloat |>> JNumber
+
+module JSONParserTest = 
+    open JSONParser
+    open FParsec
+    open Xunit
+    open FsCheck
+    open FsCheck.Xunit
+
     [<Fact;Trait("Parse","Json")>]
     let ``create JSON Objects`` () =
         let jn = JNull
@@ -50,35 +59,28 @@ module JSONParser =
         let actual = (jn, jbt, jbf, jl, jo)
         let expected = (JNull, JBool true, JBool false, [JNull; JBool true; JBool false], JObject(Map[("null",JNull)]))
         Assert.Equal(expected, actual)
-
-    let pJNull:Parser<_> = stringReturn "null" JNull
     
     [<Fact;Trait("Parse","Json")>]
     let ``parse JSON null`` () =
         let expected = JNull
-        let actual = parse pJNull "null"
+        let actual = JSONParser.parse pJNull "null"
         Assert.Equal(expected, actual)
-
-    let pJBool:Parser<_> = stringReturn "true" (JBool true) <|> stringReturn "false" (JBool false)
 
     [<Fact;Trait("Parse","Json")>]
     let ``parse JSON booleans`` () =
         let expected = JBool true, JBool false
-        let actual = parse pJBool "true", parse pJBool "false"
+        let actual = JSONParser.parse pJBool "true", JSONParser.parse pJBool "false"
         Assert.Equal(expected, actual)
-    
-    let pJNumber:Parser<_> = pfloat |>> JNumber
 
     [<Property;Trait("Parse","Json")>]
     let ``parse JSON numbers`` (x:float) =
         let y = if (x = infinity || x = -infinity ) then 0.0 else x
         let expected = JNumber (System.Double.Parse(y.ToString("G17")))
-        let actual = parse pJNumber (y.ToString("G17"))
+        let actual = JSONParser.parse pJNumber (y.ToString("G17"))
         Assert.Equal(expected, actual)
     
     [<Fact;Trait("Parse","Json")>]
     let ``parse JBool`` () =
         let expected = JBool true, JBool false
-        let actual = parse pJBool "true", parse pJBool "false"
+        let actual = JSONParser.parse pJBool "true", JSONParser.parse pJBool "false"
         Assert.Equal(expected, actual)
-
